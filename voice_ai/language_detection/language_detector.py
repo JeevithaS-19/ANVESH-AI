@@ -1,17 +1,56 @@
 class LanguageDetector:
     LANGUAGE_MAP = {
+        "af": "Afrikaans",
+        "ar": "Arabic",
+        "bn": "Bengali",
+        "bg": "Bulgarian",
+        "ca": "Catalan",
+        "cs": "Czech",
+        "da": "Danish",
+        "de": "German",
+        "el": "Greek",
         "en": "English",
+        "es": "Spanish",
+        "et": "Estonian",
+        "fa": "Persian",
+        "fi": "Finnish",
+        "fr": "French",
+        "gu": "Gujarati",
+        "he": "Hebrew",
         "hi": "Hindi",
+        "hr": "Croatian",
+        "hu": "Hungarian",
+        "id": "Indonesian",
+        "it": "Italian",
+        "ja": "Japanese",
         "kn": "Kannada",
-        "ta": "Tamil",
-        "te": "Telugu",
+        "ko": "Korean",
+        "lt": "Lithuanian",
+        "lv": "Latvian",
         "ml": "Malayalam",
         "mr": "Marathi",
-        "bn": "Bengali",
-        "gu": "Gujarati",
+        "ne": "Nepali",
+        "nl": "Dutch",
+        "no": "Norwegian",
+        "or": "Odia",
         "pa": "Punjabi",
+        "pl": "Polish",
+        "pt": "Portuguese",
+        "ro": "Romanian",
+        "ru": "Russian",
+        "sk": "Slovak",
+        "sl": "Slovenian",
+        "sr": "Serbian",
+        "sv": "Swedish",
+        "sw": "Swahili",
+        "ta": "Tamil",
+        "te": "Telugu",
+        "th": "Thai",
+        "tr": "Turkish",
+        "uk": "Ukrainian",
         "ur": "Urdu",
-        "or": "Odia"
+        "vi": "Vietnamese",
+        "zh": "Chinese"
     }
 
     def detect(self, language_code, confidence):
@@ -30,8 +69,22 @@ class LanguageDetector:
 if __name__ == "__main__":
     detector = LanguageDetector()
 
-    result = detector.detect("en", 0.6585)
+    test_languages = [
+        ("en", 0.95),
+        ("hi", 0.91),
+        ("kn", 0.89),
+        ("ta", 0.92),
+        ("te", 0.90),
+        ("ml", 0.88)
+    ]
 
-    print("Language Code:", result["language_code"])
-    print("Detected Language:", result["language"])
-    print("Confidence:", result["confidence"])
+    for language_code, confidence in test_languages:
+        result = detector.detect(language_code, confidence)
+
+        print(
+            result["language_code"],
+            "→",
+            result["language"],
+            "| Confidence:",
+            result["confidence"]
+        )
