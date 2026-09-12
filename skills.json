@@ -1,0 +1,254 @@
+[
+  {
+    "skill_id": "SK001",
+    "name": "Python",
+    "synonyms": [
+      "Python3",
+      "Py"
+    ]
+  },
+  {
+    "skill_id": "SK002",
+    "name": "Java",
+    "synonyms": [
+      "Core Java",
+      "J2EE"
+    ]
+  },
+  {
+    "skill_id": "SK003",
+    "name": "JavaScript",
+    "synonyms": [
+      "JS",
+      "ES6"
+    ]
+  },
+  {
+    "skill_id": "SK004",
+    "name": "HTML",
+    "synonyms": [
+      "HTML5"
+    ]
+  },
+  {
+    "skill_id": "SK005",
+    "name": "CSS",
+    "synonyms": [
+      "CSS3"
+    ]
+  },
+  {
+    "skill_id": "SK006",
+    "name": "SQL",
+    "synonyms": [
+      "MySQL",
+      "Structured Query Language"
+    ]
+  },
+  {
+    "skill_id": "SK007",
+    "name": "Data Structures",
+    "synonyms": [
+      "DSA",
+      "Data Structures and Algorithms"
+    ]
+  },
+  {
+    "skill_id": "SK008",
+    "name": "REST APIs",
+    "synonyms": [
+      "API Development",
+      "RESTful Services"
+    ]
+  },
+  {
+    "skill_id": "SK009",
+    "name": "Web Development",
+    "synonyms": [
+      "Web Dev",
+      "Full Stack Development"
+    ]
+  },
+  {
+    "skill_id": "SK010",
+    "name": "Git/Version Control",
+    "synonyms": [
+      "Git",
+      "GitHub",
+      "Version Control"
+    ]
+  },
+  {
+    "skill_id": "SK011",
+    "name": "Cloud Basics",
+    "synonyms": [
+      "Cloud Computing",
+      "AWS Basics"
+    ]
+  },
+  {
+    "skill_id": "SK012",
+    "name": "Excel",
+    "synonyms": [
+      "MS Excel",
+      "Spreadsheets"
+    ]
+  },
+  {
+    "skill_id": "SK013",
+    "name": "Data Analysis",
+    "synonyms": [
+      "Data Analytics"
+    ]
+  },
+  {
+    "skill_id": "SK014",
+    "name": "Data Visualization",
+    "synonyms": [
+      "Dashboards",
+      "Power BI",
+      "Tableau"
+    ]
+  },
+  {
+    "skill_id": "SK015",
+    "name": "Statistics",
+    "synonyms": [
+      "Statistical Analysis"
+    ]
+  },
+  {
+    "skill_id": "SK016",
+    "name": "Digital Marketing",
+    "synonyms": [
+      "Online Marketing"
+    ]
+  },
+  {
+    "skill_id": "SK017",
+    "name": "SEO",
+    "synonyms": [
+      "Search Engine Optimization"
+    ]
+  },
+  {
+    "skill_id": "SK018",
+    "name": "Social Media Marketing",
+    "synonyms": [
+      "SMM"
+    ]
+  },
+  {
+    "skill_id": "SK019",
+    "name": "Content Writing",
+    "synonyms": [
+      "Copywriting"
+    ]
+  },
+  {
+    "skill_id": "SK020",
+    "name": "Communication Skills",
+    "synonyms": [
+      "Verbal Communication",
+      "Soft Skills"
+    ]
+  },
+  {
+    "skill_id": "SK021",
+    "name": "Networking Basics",
+    "synonyms": [
+      "Computer Networking"
+    ]
+  },
+  {
+    "skill_id": "SK022",
+    "name": "Troubleshooting",
+    "synonyms": [
+      "Technical Troubleshooting"
+    ]
+  },
+  {
+    "skill_id": "SK023",
+    "name": "Customer Support",
+    "synonyms": [
+      "Customer Service",
+      "Helpdesk"
+    ]
+  },
+  {
+    "skill_id": "SK024",
+    "name": "UI/UX Design",
+    "synonyms": [
+      "User Experience Design",
+      "Product Design"
+    ]
+  },
+  {
+    "skill_id": "SK025",
+    "name": "Graphic Design",
+    "synonyms": [
+      "Visual Design"
+    ]
+  },
+  {
+    "skill_id": "SK026",
+    "name": "Retail Sales",
+    "synonyms": [
+      "Sales Associate Skills",
+      "Point of Sale (POS) Operation"
+    ]
+  },
+  {
+    "skill_id": "SK027",
+    "name": "Inventory Management",
+    "synonyms": [
+      "Stock Management"
+    ]
+  },
+  {
+    "skill_id": "SK028",
+    "name": "Cash Handling",
+    "synonyms": [
+      "Billing"
+    ]
+  },
+  {
+    "skill_id": "SK029",
+    "name": "Electrical Wiring",
+    "synonyms": [
+      "House Wiring",
+      "Domestic Wiring"
+    ]
+  },
+  {
+    "skill_id": "SK030",
+    "name": "Electrical Safety",
+    "synonyms": [
+      "Safety Compliance"
+    ]
+  },
+  {
+    "skill_id": "SK031",
+    "name": "Basic Tool Handling",
+    "synonyms": [
+      "Hand Tools",
+      "Power Tools"
+    ]
+  },
+  {
+    "skill_id": "SK032",
+    "name": "Patient Care Basics",
+    "synonyms": [
+      "Patient Assistance",
+      "Bedside Care"
+    ]
+  },
+  {
+    "skill_id": "SK033",
+    "name": "First Aid",
+    "synonyms": [
+      "Basic Life Support",
+      "BLS"
+    ]
+  }
+]
