@@ -1,0 +1,168 @@
+[
+  {
+    "record_id": "TR001",
+    "title": "IT-ITeS Software Developer - Qualification Pack",
+    "level": "NSQF Level 5",
+    "provider": "NASSCOM-SSC Affiliated Training Partner",
+    "mode": "Classroom + Lab",
+    "duration_weeks": 12,
+    "linked_skills": [
+      "SK001",
+      "SK002",
+      "SK007",
+      "SK008",
+      "SK009"
+    ],
+    "linked_occupations": [
+      "OC001"
+    ]
+  },
+  {
+    "record_id": "TR002",
+    "title": "Data Analytics using Python - Skill Certification",
+    "level": "NSQF Level 5",
+    "provider": "NASSCOM-SSC Affiliated Training Partner",
+    "mode": "Online + Lab",
+    "duration_weeks": 10,
+    "linked_skills": [
+      "SK001",
+      "SK006",
+      "SK013",
+      "SK014",
+      "SK015"
+    ],
+    "linked_occupations": [
+      "OC002"
+    ]
+  },
+  {
+    "record_id": "TR003",
+    "title": "Digital Marketing Executive - National Occupational Standard",
+    "level": "NSQF Level 4",
+    "provider": "Retailers Association Skill Council (RASCI)",
+    "mode": "Classroom",
+    "duration_weeks": 8,
+    "linked_skills": [
+      "SK016",
+      "SK017",
+      "SK018",
+      "SK019"
+    ],
+    "linked_occupations": [
+      "OC003"
+    ]
+  },
+  {
+    "record_id": "TR004",
+    "title": "Web Designer - Qualification Pack",
+    "level": "NSQF Level 4",
+    "provider": "NASSCOM-SSC Affiliated Training Partner",
+    "mode": "Classroom + Lab",
+    "duration_weeks": 10,
+    "linked_skills": [
+      "SK003",
+      "SK004",
+      "SK005",
+      "SK024"
+    ],
+    "linked_occupations": [
+      "OC004"
+    ]
+  },
+  {
+    "record_id": "TR005",
+    "title": "IT Helpdesk Attendant - National Occupational Standard",
+    "level": "NSQF Level 3",
+    "provider": "NASSCOM-SSC Affiliated Training Partner",
+    "mode": "Classroom",
+    "duration_weeks": 6,
+    "linked_skills": [
+      "SK021",
+      "SK022",
+      "SK023"
+    ],
+    "linked_occupations": [
+      "OC005"
+    ]
+  },
+  {
+    "record_id": "TR006",
+    "title": "Foundational REST API Development - Skill Add-on",
+    "level": "NSQF Level 5",
+    "provider": "NASSCOM-SSC Affiliated Training Partner",
+    "mode": "Online",
+    "duration_weeks": 3,
+    "linked_skills": [
+      "SK008",
+      "SK010"
+    ],
+    "linked_occupations": [
+      "OC001"
+    ]
+  },
+  {
+    "record_id": "TR007",
+    "title": "Cloud Computing Fundamentals - Skill Add-on",
+    "level": "NSQF Level 5",
+    "provider": "NASSCOM-SSC Affiliated Training Partner",
+    "mode": "Online",
+    "duration_weeks": 2,
+    "linked_skills": [
+      "SK011"
+    ],
+    "linked_occupations": [
+      "OC001",
+      "OC002"
+    ]
+  },
+  {
+    "record_id": "TR008",
+    "title": "Retail Sales Associate - Qualification Pack",
+    "level": "NSQF Level 2",
+    "provider": "Retailers Association Skill Council (RASCI)",
+    "mode": "Classroom + On-the-job",
+    "duration_weeks": 6,
+    "linked_skills": [
+      "SK026",
+      "SK027",
+      "SK028",
+      "SK020"
+    ],
+    "linked_occupations": [
+      "OC006"
+    ]
+  },
+  {
+    "record_id": "TR009",
+    "title": "Electrician (Domestic) - Qualification Pack",
+    "level": "NSQF Level 3",
+    "provider": "Power Sector Skill Council",
+    "mode": "Classroom + Workshop",
+    "duration_weeks": 12,
+    "linked_skills": [
+      "SK029",
+      "SK030",
+      "SK031"
+    ],
+    "linked_occupations": [
+      "OC007"
+    ]
+  },
+  {
+    "record_id": "TR010",
+    "title": "General Duty Assistant (Healthcare) - National Occupational Standard",
+    "level": "NSQF Level 4",
+    "provider": "Healthcare Sector Skill Council",
+    "mode": "Classroom + Clinical Practicum",
+    "duration_weeks": 16,
+    "linked_skills": [
+      "SK032",
+      "SK033",
+      "SK020",
+      "SK023"
+    ],
+    "linked_occupations": [
+      "OC008"
+    ]
+  }
+]

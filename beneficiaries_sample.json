@@ -1,0 +1,117 @@
+[
+  {
+    "profile_id": "BEN001",
+    "name": "Ravi",
+    "education": "B.Tech",
+    "skills": [
+      "Python",
+      "Java",
+      "Web Development"
+    ],
+    "experience": 2,
+    "location": "Bangalore",
+    "career_goal": "Software Development",
+    "job_preference": "hybrid",
+    "expected_top_match": "OC001"
+  },
+  {
+    "profile_id": "BEN002",
+    "name": "Anjali",
+    "education": "B.Com",
+    "skills": [
+      "Excel",
+      "SQL",
+      "Statistics"
+    ],
+    "experience": 1,
+    "location": "Kochi",
+    "career_goal": "Data Analysis",
+    "job_preference": "remote",
+    "expected_top_match": "OC002"
+  },
+  {
+    "profile_id": "BEN003",
+    "name": "Farhan",
+    "education": "12th Pass",
+    "skills": [
+      "Content Writing",
+      "Social Media Marketing"
+    ],
+    "experience": 0,
+    "location": "Hyderabad",
+    "career_goal": "Digital Marketing",
+    "job_preference": "onsite",
+    "expected_top_match": "OC003"
+  },
+  {
+    "profile_id": "BEN004",
+    "name": "Meera",
+    "education": "Diploma",
+    "skills": [
+      "HTML",
+      "CSS",
+      "Graphic Design"
+    ],
+    "experience": 1,
+    "location": "Ernakulam",
+    "career_goal": "Web Design",
+    "job_preference": "hybrid",
+    "expected_top_match": "OC004"
+  },
+  {
+    "profile_id": "BEN005",
+    "name": "Suresh",
+    "education": "ITI",
+    "skills": [
+      "Networking Basics",
+      "Customer Support"
+    ],
+    "experience": 0,
+    "location": "Bangalore",
+    "career_goal": "IT Support",
+    "job_preference": "onsite",
+    "expected_top_match": "OC005"
+  },
+  {
+    "profile_id": "BEN006",
+    "name": "Lakshmi",
+    "education": "12th Pass",
+    "skills": [
+      "Retail Sales",
+      "Cash Handling"
+    ],
+    "experience": 1,
+    "location": "Chennai",
+    "career_goal": "Retail",
+    "job_preference": "onsite",
+    "expected_top_match": "OC006"
+  },
+  {
+    "profile_id": "BEN007",
+    "name": "Karthik",
+    "education": "ITI",
+    "skills": [
+      "Electrical Wiring",
+      "Basic Tool Handling"
+    ],
+    "experience": 2,
+    "location": "Coimbatore",
+    "career_goal": "Electrician",
+    "job_preference": "onsite",
+    "expected_top_match": "OC007"
+  },
+  {
+    "profile_id": "BEN008",
+    "name": "Divya",
+    "education": "12th Pass",
+    "skills": [
+      "Patient Care Basics",
+      "First Aid"
+    ],
+    "experience": 0,
+    "location": "Mysuru",
+    "career_goal": "Healthcare Support",
+    "job_preference": "onsite",
+    "expected_top_match": "OC008"
+  }
+]
