@@ -44,7 +44,7 @@ class VoicePipeline:
         profile_complete = self.conversation.is_profile_complete()
         next_question = self.conversation.get_next_question()
         if next_question:
-            self.tts.speak(next_question)
+            self.tts.speak(next_question, language_result["language_code"])
 
         return {
             "transcription": text,
