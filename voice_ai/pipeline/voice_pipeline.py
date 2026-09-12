@@ -3,7 +3,7 @@ from voice_ai.language_detection.language_detector import LanguageDetector
 from voice_ai.nlp.nlp_processor import NLPProcessor
 from voice_ai.entity_extraction.entity_extractor import EntityExtractor
 from voice_ai.conversation.conversation_manager import ConversationManager
-
+from voice_ai.tts.text_to_speech import TextToSpeech
 
 class VoicePipeline:
 
@@ -13,6 +13,7 @@ class VoicePipeline:
         self.nlp = NLPProcessor()
         self.entity_extractor = EntityExtractor()
         self.conversation = ConversationManager()
+        self.tts = TextToSpeech()
 
     def process_text(self, text, language_code="en", language_confidence=1.0):
 
@@ -42,6 +43,8 @@ class VoicePipeline:
 
         profile_complete = self.conversation.is_profile_complete()
         next_question = self.conversation.get_next_question()
+        if next_question:
+            self.tts.speak(next_question)
 
         return {
             "transcription": text,
