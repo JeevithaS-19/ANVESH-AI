@@ -71,11 +71,12 @@ class NLPProcessor:
         return "general_query"
 
     def extract_skills(self, text):
-        text_lower = text.lower()
         detected_skills = []
 
         for skill in self.SKILLS:
-            if skill.lower() in text_lower:
+            pattern = r"(?<!\w)" + re.escape(skill) + r"(?!\w)"
+
+            if re.search(pattern, text, re.IGNORECASE):
                 detected_skills.append(skill)
 
         return detected_skills

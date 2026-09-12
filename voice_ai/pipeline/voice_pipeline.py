@@ -14,28 +14,17 @@ class VoicePipeline:
         self.entity_extractor = EntityExtractor()
         self.conversation = ConversationManager()
 
-    def process_audio(self, audio_file):
+    def process_text(self, text, language_code="en", language_confidence=1.0):
 
-        # Step 1: Speech-to-Text
-        stt_result = self.stt.transcribe(audio_file)
-
-        text = stt_result["text"]
-        language_code = stt_result["language"]
-        language_confidence = stt_result["language_probability"]
-
-        # Step 2: Language Detection
         language_result = self.language_detector.detect(
             language_code,
             language_confidence
         )
 
-        # Step 3: NLP Processing
         nlp_result = self.nlp.process(text)
 
-        # Step 4: Entity Extraction
         entity_result = self.entity_extractor.process(text)
 
-        # Step 5: Combine NLP and Entity information
         extracted_data = {
             "name": entity_result["name"],
             "education": entity_result["education"],
@@ -49,10 +38,8 @@ class VoicePipeline:
             "language": language_result["language_code"]
         }
 
-        # Step 6: Update conversation profile
         self.conversation.update_profile(extracted_data)
 
-        # Step 7: Check profile status
         profile_complete = self.conversation.is_profile_complete()
         next_question = self.conversation.get_next_question()
 
@@ -65,6 +52,16 @@ class VoicePipeline:
             "profile_complete": profile_complete,
             "next_question": next_question
         }
+
+    def process_audio(self, audio_file):
+
+        stt_result = self.stt.transcribe(audio_file)
+
+        return self.process_text(
+            stt_result["text"],
+            stt_result["language"],
+            stt_result["language_probability"]
+        )
 
 
 if __name__ == "__main__":

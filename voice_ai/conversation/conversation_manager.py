@@ -37,8 +37,19 @@ class ConversationManager:
                 continue
 
             if isinstance(value, list):
-                if value:
+
+                if not value:
+                    continue
+
+                if isinstance(self.profile.get(field), list):
+
+                    for item in value:
+                        if item not in self.profile[field]:
+                            self.profile[field].append(item)
+
+                else:
                     self.profile[field] = value
+
             else:
                 self.profile[field] = value
 
