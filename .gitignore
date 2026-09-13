@@ -216,3 +216,7 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+sample.m4a
+
+# Generated TTS audio
+voice_ai/generated_audio/*.mp3
