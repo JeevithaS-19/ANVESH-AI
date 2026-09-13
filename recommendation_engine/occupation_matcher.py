@@ -37,8 +37,8 @@ def rank_occupations(user_skills, occupations):
         results.append(result)
 
     results.sort(
-        key=lambda x: x["match_percentage"],
-        reverse=True
-    )
+    key=lambda x: x["compatibility_score"],
+    reverse=True
+)
 
     return results
