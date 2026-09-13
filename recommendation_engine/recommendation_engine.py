@@ -1,119 +1,34 @@
-from recommendation_engine.occupation_matcher import rank_occupations
-from recommendation_engine.training_recommender import recommend_training
-from recommendation_engine.explanation import generate_explanation
-from recommendation_engine.data.knowledge_base import load_knowledge_base
+from recommendation_engine.data.knowledge_base import (
+    load_knowledge_base
+)
+
+from recommendation_engine.occupation_matcher import (
+    rank_occupations
+)
+
+from recommendation_engine.training_recommender import (
+    recommend_training
+)
+
+from recommendation_engine.explanation import (
+    generate_explanation
+)
+
+from recommendation_engine.recommendation_summary import (
+    generate_recommendation_summary
+)
 
 
-def generate_skill_pathway(
-    missing_skills,
-    training_recommendations
-):
-    """
-    Create a personalized learning pathway
-    based on the beneficiary's missing skills.
-    """
+# ============================================================
+# LOAD KNOWLEDGE BASE
+# ============================================================
 
-    pathway = []
-
-    for skill in missing_skills:
-
-        pathway.append({
-            "skill": skill,
-            "priority": "High",
-            "reason": (
-                "Required skill for the "
-                "recommended occupation"
-            )
-        })
-
-    training_pathway = []
-
-    for training in training_recommendations:
-
-        training_pathway.append({
-            "training": training["training"],
-            "nsqf_level": training["nsqf_level"],
-            "provider": training["provider"],
-            "mode": training["mode"],
-            "duration_weeks": training["duration_weeks"]
-        })
-
-    return {
-        "skills_to_learn": pathway,
-        "recommended_training": training_pathway
-    }
+OCCUPATIONS = load_knowledge_base()
 
 
-def normalize_location(location):
-    """
-    Normalize location text for comparison.
-    """
-
-    if not location:
-        return ""
-
-    return (
-        location
-        .lower()
-        .strip()
-        .replace(",", "")
-    )
-
-
-def get_opportunities(
-    occupation,
-    user_location
-):
-    """
-    Return opportunities relevant to the
-    recommended occupation and beneficiary location.
-
-    If no location is provided, all occupation-linked
-    opportunities are returned.
-    """
-
-    opportunities = occupation.get(
-        "opportunities",
-        []
-    )
-
-    if not opportunities:
-        return []
-
-    if not user_location:
-        return opportunities
-
-    normalized_user_location = normalize_location(
-        user_location
-    )
-
-    matched = []
-
-    for opportunity in opportunities:
-
-        opportunity_location = normalize_location(
-            opportunity.get("location", "")
-        )
-
-        # Exact location match
-        if opportunity_location == normalized_user_location:
-
-            matched.append(opportunity)
-            continue
-
-        # Allow remote / all-location opportunities
-        if opportunity_location in [
-            "remote",
-            "online",
-            "all india",
-            "pan india",
-            "india"
-        ]:
-
-            matched.append(opportunity)
-
-    return matched
-
+# ============================================================
+# GENERATE RECOMMENDATIONS
+# ============================================================
 
 def generate_recommendations(
     user_skills,
@@ -123,112 +38,316 @@ def generate_recommendations(
     career_goal="",
     location=""
 ):
+    """
+    Generate complete AI-based recommendations.
+
+    Flow:
+        Beneficiary Profile
+              ↓
+        Occupation Matching
+              ↓
+        Compatibility Score
+              ↓
+        Skill Gap
+              ↓
+        NSQF Training
+              ↓
+        Skill Pathway
+              ↓
+        Opportunities
+              ↓
+        Explainable Recommendation Summary
+    """
+
+    # --------------------------------------------------------
+    # Default interests
+    # --------------------------------------------------------
+
     if interests is None:
         interests = []
 
-    # Load occupations, training and opportunities
-    occupations = load_knowledge_base()
-
-    # ---------------------------------
-    # Rank occupations
-    # ---------------------------------
+    # --------------------------------------------------------
+    # STEP 1:
+    # Rank occupations based on the beneficiary profile
+    # --------------------------------------------------------
 
     occupation_results = rank_occupations(
-        user_skills,
-        occupations,
-        education,
-        experience,
-        interests,
-        career_goal
+        user_skills=user_skills,
+        occupations=OCCUPATIONS,
+        education=education,
+        experience=experience,
+        interests=interests,
+        career_goal=career_goal
     )
 
-    final_results = []
+    final_recommendations = []
 
-    for result in occupation_results:
+    # --------------------------------------------------------
+    # STEP 2:
+    # Process top 3 occupations
+    # --------------------------------------------------------
 
-        # ---------------------------------
-        # Training recommendations
-        # ---------------------------------
+    for result in occupation_results[:3]:
+
+        occupation_name = result.get(
+            "occupation",
+            ""
+        )
+
+        # ====================================================
+        # STEP 3:
+        # Recommend NSQF-aligned training
+        # ====================================================
 
         training = recommend_training(
             result,
-            occupations
+            OCCUPATIONS
         )
 
-        # ---------------------------------
-        # Explanation
-        # ---------------------------------
+        # ====================================================
+        # STEP 4:
+        # Generate existing explanation
+        # ====================================================
 
         explanation = generate_explanation(
             result
         )
 
-        # ---------------------------------
-        # Personalized skill pathway
-        # ---------------------------------
+        # ====================================================
+        # STEP 5:
+        # Create skill development pathway
+        # ====================================================
 
-        skill_pathway = generate_skill_pathway(
-            result["missing_skills"],
-            training["recommendations"]
-        )
+        skill_pathway = []
 
-        # ---------------------------------
-        # Find matching occupation
-        # ---------------------------------
+        for skill in result.get(
+            "missing_skills",
+            []
+        ):
 
-        matched_occupation = None
+            skill_pathway.append({
+                "skill": skill,
+                "status": "Missing",
+                "action": (
+                    f"Develop {skill} "
+                    "through suitable training."
+                )
+            })
 
-        for occupation in occupations:
-
-            if occupation["name"] == result["occupation"]:
-
-                matched_occupation = occupation
-                break
-
-        # ---------------------------------
-        # Opportunities
-        # ---------------------------------
+        # ====================================================
+        # STEP 6:
+        # Find location-aware opportunities
+        # ====================================================
 
         opportunities = []
 
-        if matched_occupation:
+        for occupation in OCCUPATIONS:
 
-            opportunities = get_opportunities(
-                matched_occupation,
-                location
+            if occupation["name"] != occupation_name:
+                continue
+
+            occupation_opportunities = occupation.get(
+                "opportunities",
+                []
             )
 
-        # ---------------------------------
-        # Final result
-        # ---------------------------------
+            for opportunity in occupation_opportunities:
 
-        final_results.append({
-            "occupation": result["occupation"],
+                opportunity_location = (
+                    opportunity.get(
+                        "location",
+                        ""
+                    )
+                )
 
-            "skill_match": result["match_percentage"],
+                # --------------------------------------------
+                # If user location is not provided
+                # --------------------------------------------
 
-            "compatibility_score": (
-                result["compatibility_score"]
+                if not location:
+
+                    opportunities.append(
+                        opportunity
+                    )
+
+                    continue
+
+                # --------------------------------------------
+                # Normalize locations
+                # --------------------------------------------
+
+                user_location = (
+                    location
+                    .lower()
+                    .strip()
+                )
+
+                available_location = (
+                    opportunity_location
+                    .lower()
+                    .strip()
+                )
+
+                # --------------------------------------------
+                # Remote opportunity
+                # --------------------------------------------
+
+                if "remote" in available_location:
+
+                    opportunities.append(
+                        opportunity
+                    )
+
+                # --------------------------------------------
+                # Local opportunity
+                # --------------------------------------------
+
+                elif (
+                    user_location in available_location
+                    or available_location in user_location
+                ):
+
+                    opportunities.append(
+                        opportunity
+                    )
+
+            break
+
+        # ====================================================
+        # STEP 7:
+        # Prepare result for explainable summary
+        #
+        # IMPORTANT:
+        # The original `result` does not contain training.
+        # Therefore we create a copy and attach the training
+        # recommendations before generating the summary.
+        # ====================================================
+
+        summary_result = result.copy()
+
+        summary_result["training"] = (
+            training.get(
+                "recommendations",
+                []
+            )
+        )
+
+        # ====================================================
+        # STEP 8:
+        # Generate structured explainable summary
+        # ====================================================
+
+        recommendation_summary = (
+            generate_recommendation_summary(
+                summary_result,
+                education=education,
+                experience=experience,
+                interests=interests,
+                career_goal=career_goal,
+                opportunities=opportunities
+            )
+        )
+
+        # ====================================================
+        # STEP 9:
+        # Build final recommendation object
+        # ====================================================
+
+        final_recommendations.append({
+
+            # ------------------------------------------------
+            # Occupation
+            # ------------------------------------------------
+
+            "occupation": occupation_name,
+
+            # ------------------------------------------------
+            # Scores
+            # ------------------------------------------------
+
+            "compatibility_score": result.get(
+                "compatibility_score",
+                0
             ),
 
-            "matched_skills": (
-                result["matched_skills"]
+            "match_percentage": result.get(
+                "match_percentage",
+                0
             ),
 
-            "missing_skills": (
-                result["missing_skills"]
+            "career_goal_match": result.get(
+                "career_goal_match",
+                0
             ),
 
-            "training": (
-                training["recommendations"]
+            # ------------------------------------------------
+            # Skill information
+            # ------------------------------------------------
+
+            "matched_skills": result.get(
+                "matched_skills",
+                []
             ),
+
+            "missing_skills": result.get(
+                "missing_skills",
+                []
+            ),
+
+            # ------------------------------------------------
+            # Profile matching
+            # ------------------------------------------------
+
+            "education_match": result.get(
+                "education_match",
+                0
+            ),
+
+            "experience_match": result.get(
+                "experience_match",
+                0
+            ),
+
+            "interest_match": result.get(
+                "interest_match",
+                0
+            ),
+
+            # ------------------------------------------------
+            # Explanation
+            # ------------------------------------------------
+
+            "explanation": explanation,
+
+            # ------------------------------------------------
+            # Training recommendations
+            # ------------------------------------------------
+
+            "training": training,
+
+            # ------------------------------------------------
+            # Skill development pathway
+            # ------------------------------------------------
 
             "skill_pathway": skill_pathway,
 
+            # ------------------------------------------------
+            # Employment / livelihood opportunities
+            # ------------------------------------------------
+
             "opportunities": opportunities,
 
-            "explanation": explanation
+            # ------------------------------------------------
+            # Explainable AI summary
+            # ------------------------------------------------
+
+            "recommendation_summary": (
+                recommendation_summary
+            )
         })
 
-    # Return top 3 occupations
-    return final_results[:3]
+    # ========================================================
+    # RETURN FINAL RECOMMENDATIONS
+    # ========================================================
+
+    return final_recommendations

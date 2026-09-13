@@ -4,7 +4,14 @@ from recommendation_engine.skill_gap import calculate_skill_gap
 from recommendation_engine.compatibility_score import calculate_compatibility_score
 
 
-def calculate_education_match(user_education, required_education):
+# ============================================================
+# EDUCATION MATCH
+# ============================================================
+
+def calculate_education_match(
+    user_education,
+    required_education
+):
     """
     Compare beneficiary education with the occupation's
     education requirement.
@@ -72,27 +79,47 @@ def calculate_education_match(user_education, required_education):
         "higher secondary"
     ]
 
-    if any(term in user for term in postgraduate_terms):
+    # Detect user's education category
+    if any(
+        term in user
+        for term in postgraduate_terms
+    ):
         user_category = "postgraduate"
 
-    elif any(term in user for term in undergraduate_terms):
+    elif any(
+        term in user
+        for term in undergraduate_terms
+    ):
         user_category = "graduate"
 
-    elif any(term in user for term in diploma_terms):
+    elif any(
+        term in user
+        for term in diploma_terms
+    ):
         user_category = "diploma"
 
-    elif any(term in user for term in iti_terms):
+    elif any(
+        term in user
+        for term in iti_terms
+    ):
         user_category = "iti"
 
-    elif any(term in user for term in school_12_terms):
+    elif any(
+        term in user
+        for term in school_12_terms
+    ):
         user_category = "12th"
 
-    elif any(term in user for term in school_10_terms):
+    elif any(
+        term in user
+        for term in school_10_terms
+    ):
         user_category = "10th"
 
     else:
         user_category = "other"
 
+    # Postgraduate
     if user_category == "postgraduate":
 
         if (
@@ -102,6 +129,7 @@ def calculate_education_match(user_education, required_education):
         ):
             return 100
 
+    # Graduate
     if user_category == "graduate":
 
         if (
@@ -113,19 +141,29 @@ def calculate_education_match(user_education, required_education):
             or "bca" in required
             or "b.sc" in required
             or "b.com" in required
+            or "any discipline" in required
         ):
             return 100
 
+    # Diploma
     if user_category == "diploma":
 
-        if "diploma" in required or "certificate" in required:
+        if (
+            "diploma" in required
+            or "certificate" in required
+        ):
             return 100
 
+    # ITI
     if user_category == "iti":
 
-        if "iti" in required or "vocational" in required:
+        if (
+            "iti" in required
+            or "vocational" in required
+        ):
             return 100
 
+    # 12th
     if user_category == "12th":
 
         if (
@@ -135,12 +173,20 @@ def calculate_education_match(user_education, required_education):
         ):
             return 100
 
+    # 10th
     if user_category == "10th":
 
-        if "10th" in required or "10th pass" in required:
+        if (
+            "10th" in required
+            or "10th pass" in required
+        ):
             return 100
 
-    if user_category in ["graduate", "postgraduate"]:
+    # Graduate/Postgraduate for "any discipline"
+    if user_category in [
+        "graduate",
+        "postgraduate"
+    ]:
 
         if "any discipline" in required:
             return 100
@@ -148,18 +194,24 @@ def calculate_education_match(user_education, required_education):
     return 0
 
 
-def calculate_interest_match(user_interests, occupation_name):
-    """
-    Match beneficiary interests with occupation-related keywords.
+# ============================================================
+# INTEREST MATCH
+# ============================================================
 
-    This works without requiring an interests column
-    in the SQLite database.
+def calculate_interest_match(
+    user_interests,
+    occupation_name
+):
+    """
+    Match beneficiary interests with
+    occupation-related keywords.
     """
 
     if not user_interests:
         return 0
 
     occupation_interests = {
+
         "data analyst": [
             "data",
             "data analysis",
@@ -257,7 +309,10 @@ def calculate_interest_match(user_interests, occupation_name):
 
         for keyword in required_interests:
 
-            if interest in keyword or keyword in interest:
+            if (
+                interest in keyword
+                or keyword in interest
+            ):
                 matched += 1
                 break
 
@@ -273,23 +328,33 @@ def calculate_interest_match(user_interests, occupation_name):
     )
 
 
-def calculate_career_goal_match(career_goal, occupation):
+# ============================================================
+# CAREER GOAL MATCH
+# ============================================================
+
+def calculate_career_goal_match(
+    career_goal,
+    occupation
+):
     """
-    Match the beneficiary's career goal with an occupation
-    using occupation names and related career terms.
+    Match beneficiary career goal with occupation.
     """
 
     if not career_goal:
         return 0
 
     goal = career_goal.lower().strip()
-    occupation_name = occupation.lower().strip()
+
+    occupation_name = (
+        occupation.lower().strip()
+    )
 
     # Exact occupation match
     if occupation_name in goal:
         return 100
 
     career_keywords = {
+
         "data analyst": [
             "data",
             "analytics",
@@ -384,14 +449,18 @@ def calculate_career_goal_match(career_goal, occupation):
     return 0
 
 
+# ============================================================
+# EXPERIENCE EXTRACTION
+# ============================================================
+
 def extract_years(text):
     """
     Extract numeric years from experience text.
 
     Examples:
-    '1 year' -> 1
-    '2 years' -> 2
-    '3 yrs' -> 3
+        '1 year' -> 1
+        '2 years' -> 2
+        '3 yrs' -> 3
     """
 
     if not text:
@@ -408,6 +477,10 @@ def extract_years(text):
     return None
 
 
+# ============================================================
+# EXPERIENCE MATCH
+# ============================================================
+
 def calculate_experience_match(
     user_experience,
     required_experience
@@ -417,7 +490,9 @@ def calculate_experience_match(
     the occupation's required experience range.
     """
 
-    user_years = extract_years(user_experience)
+    user_years = extract_years(
+        user_experience
+    )
 
     if user_years is None:
         return 0
@@ -433,6 +508,7 @@ def calculate_experience_match(
     if not numbers:
         return 0
 
+    # Experience range such as 0-2 years
     if len(numbers) >= 2:
 
         minimum = float(numbers[0])
@@ -442,9 +518,14 @@ def calculate_experience_match(
             return 100
 
         if user_years < minimum:
-            difference = minimum - user_years
+            difference = (
+                minimum - user_years
+            )
+
         else:
-            difference = user_years - maximum
+            difference = (
+                user_years - maximum
+            )
 
         if difference <= 1:
             return 75
@@ -454,12 +535,17 @@ def calculate_experience_match(
 
         return 25
 
-    required_years = float(numbers[0])
+    # Single required number
+    required_years = float(
+        numbers[0]
+    )
 
     if user_years >= required_years:
         return 100
 
-    difference = required_years - user_years
+    difference = (
+        required_years - user_years
+    )
 
     if difference <= 1:
         return 75
@@ -470,6 +556,10 @@ def calculate_experience_match(
     return 25
 
 
+# ============================================================
+# MATCH ONE OCCUPATION
+# ============================================================
+
 def match_occupation(
     user_skills,
     occupation,
@@ -479,14 +569,26 @@ def match_occupation(
     interest_match,
     occupation_skill_synonyms=None
 ):
+    """
+    Match beneficiary profile against one occupation.
+    """
+
     if occupation_skill_synonyms is None:
         occupation_skill_synonyms = {}
+
+    # --------------------------------------------------------
+    # Calculate skill gap
+    # --------------------------------------------------------
 
     skill_gap = calculate_skill_gap(
         user_skills,
         required_skills,
         occupation_skill_synonyms
     )
+
+    # --------------------------------------------------------
+    # Calculate compatibility score
+    # --------------------------------------------------------
 
     compatibility = calculate_compatibility_score(
         skill_gap["match_percentage"],
@@ -495,14 +597,42 @@ def match_occupation(
         interest_match
     )
 
+    # --------------------------------------------------------
+    # Return ALL matching components
+    # --------------------------------------------------------
+
     return {
         "occupation": occupation,
-        "matched_skills": skill_gap["matched_skills"],
-        "missing_skills": skill_gap["missing_skills"],
-        "match_percentage": skill_gap["match_percentage"],
-        "compatibility_score": compatibility
+
+        "matched_skills": (
+            skill_gap["matched_skills"]
+        ),
+
+        "missing_skills": (
+            skill_gap["missing_skills"]
+        ),
+
+        "match_percentage": (
+            skill_gap["match_percentage"]
+        ),
+
+        "compatibility_score": compatibility,
+
+        # IMPORTANT:
+        # These values were previously calculated
+        # but were not returned.
+
+        "education_match": education_match,
+
+        "experience_match": experience_match,
+
+        "interest_match": interest_match
     }
 
+
+# ============================================================
+# RANK OCCUPATIONS
+# ============================================================
 
 def rank_occupations(
     user_skills,
@@ -512,32 +642,75 @@ def rank_occupations(
     interests=None,
     career_goal=""
 ):
+    """
+    Rank occupations according to:
+
+    1. Career goal alignment
+    2. Compatibility score
+
+    Compatibility score uses:
+        60% Skill Match
+        15% Education
+        15% Experience
+        10% Interest
+    """
+
     if interests is None:
         interests = []
 
     results = []
 
+    # --------------------------------------------------------
+    # Evaluate every occupation
+    # --------------------------------------------------------
+
     for occupation in occupations:
+
+        # ----------------------------------------------------
+        # Education
+        # ----------------------------------------------------
 
         education_match = calculate_education_match(
             education,
-            occupation.get("education_requirements", [])
+            occupation.get(
+                "education_requirements",
+                []
+            )
         )
+
+        # ----------------------------------------------------
+        # Experience
+        # ----------------------------------------------------
 
         experience_match = calculate_experience_match(
             experience,
-            occupation.get("experience_level", "")
+            occupation.get(
+                "experience_level",
+                ""
+            )
         )
+
+        # ----------------------------------------------------
+        # Interests
+        # ----------------------------------------------------
 
         interest_match = calculate_interest_match(
             interests,
             occupation["name"]
         )
 
+        # ----------------------------------------------------
+        # Career Goal
+        # ----------------------------------------------------
+
         career_goal_match = calculate_career_goal_match(
             career_goal,
             occupation["name"]
         )
+
+        # ----------------------------------------------------
+        # Match occupation
+        # ----------------------------------------------------
 
         result = match_occupation(
             user_skills,
@@ -546,12 +719,25 @@ def rank_occupations(
             education_match,
             experience_match,
             interest_match,
-            occupation.get("skill_synonyms", {})
+            occupation.get(
+                "skill_synonyms",
+                {}
+            )
         )
 
-        result["career_goal_match"] = career_goal_match
+        # ----------------------------------------------------
+        # Add career goal score
+        # ----------------------------------------------------
+
+        result["career_goal_match"] = (
+            career_goal_match
+        )
 
         results.append(result)
+
+    # --------------------------------------------------------
+    # Sort recommendations
+    # --------------------------------------------------------
 
     results.sort(
         key=lambda x: (
