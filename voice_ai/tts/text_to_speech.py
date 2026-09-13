@@ -1,6 +1,6 @@
 import asyncio
 import os
-import tempfile
+import uuid
 
 import edge_tts
 import pyttsx3
@@ -23,7 +23,13 @@ class TextToSpeech:
         communicate = edge_tts.Communicate(text, voice)
         await communicate.save(output_file)
 
-    def speak(self, text, language_code="en"):
+    def generate_audio(self, text, language_code="en"):
+        """
+        Generate an MP3 file without playing it.
+
+        Each generated audio file receives a unique filename
+        so different conversations do not overwrite each other.
+        """
 
         if not text:
             return {
@@ -32,9 +38,10 @@ class TextToSpeech:
                 "message": "No text provided"
             }
 
-        # Use English as fallback for unsupported languages
+        # Select voice for requested language
         voice = self.VOICES.get(language_code)
 
+        # Fallback to English for unsupported languages
         if voice is None:
             voice = self.VOICES["en"]
             used_language = "en"
@@ -44,14 +51,21 @@ class TextToSpeech:
             fallback = False
 
         try:
-            # Temporary MP3 file
-            temp_file = tempfile.NamedTemporaryFile(
-                suffix=".mp3",
-                delete=False
+            # Directory for generated audio files
+            audio_dir = os.path.join(
+                os.path.dirname(os.path.dirname(__file__)),
+                "generated_audio"
             )
-            temp_file.close()
 
-            output_file = temp_file.name
+            os.makedirs(audio_dir, exist_ok=True)
+
+            # Create a unique filename
+            unique_id = uuid.uuid4().hex[:8]
+
+            output_file = os.path.join(
+                audio_dir,
+                f"tts_{language_code}_{unique_id}.mp3"
+            )
 
             # Generate speech
             asyncio.run(
@@ -62,19 +76,13 @@ class TextToSpeech:
                 )
             )
 
-            # Play speech
-            playsound(output_file)
-
-            # Remove temporary file
-            if os.path.exists(output_file):
-                os.remove(output_file)
-
             return {
                 "success": True,
                 "requested_language": language_code,
                 "used_language": used_language,
                 "voice": voice,
-                "fallback": fallback
+                "fallback": fallback,
+                "audio_file": output_file
             }
 
         except Exception as e:
@@ -88,25 +96,83 @@ class TextToSpeech:
                 "message": str(e)
             }
 
+    def speak(self, text, language_code="en"):
+        """
+        Generate and play speech locally.
+
+        The generated file is deleted after playback.
+        """
+
+        result = self.generate_audio(
+            text,
+            language_code
+        )
+
+        if not result["success"]:
+            return result
+
+        output_file = result["audio_file"]
+
+        try:
+            # Play generated speech
+            playsound(output_file)
+
+            # Delete temporary playback file
+            if os.path.exists(output_file):
+                os.remove(output_file)
+
+            result.pop("audio_file", None)
+
+            return result
+
+        except Exception as e:
+
+            if os.path.exists(output_file):
+                os.remove(output_file)
+
+            return {
+                "success": False,
+                "requested_language": language_code,
+                "used_language": result["used_language"],
+                "voice": result["voice"],
+                "fallback": result["fallback"],
+                "message": str(e)
+            }
+
 
 if __name__ == "__main__":
 
     tts = TextToSpeech()
 
     print("\n--- English TTS ---")
-    print(tts.speak(
-        "May I know your name?",
-        "en"
-    ))
+    print(
+        tts.speak(
+            "May I know your name?",
+            "en"
+        )
+    )
 
     print("\n--- Hindi TTS ---")
-    print(tts.speak(
-        "आपका नाम क्या है?",
-        "hi"
-    ))
+    print(
+        tts.speak(
+            "आपका नाम क्या है?",
+            "hi"
+        )
+    )
 
     print("\n--- Kannada TTS ---")
-    print(tts.speak(
-        "ನಿಮ್ಮ ಹೆಸರು ಏನು?",
-        "kn"
-    ))
+    print(
+        tts.speak(
+            "ನಿಮ್ಮ ಹೆಸರು ಏನು?",
+            "kn"
+        )
+    )
+
+    print("\n--- Audio File Generation Test ---")
+
+    result = tts.generate_audio(
+        "Your profile is ready.",
+        "en"
+    )
+
+    print(result)
