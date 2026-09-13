@@ -4,14 +4,38 @@ import re
 class EntityExtractor:
 
     def extract_experience(self, text):
+        text_lower = text.lower()
+
+        # English
         patterns = [
             r"(\d+(?:\.\d+)?)\s*(?:years?|yrs?)\s*(?:of)?\s*experience",
             r"experience\s*(?:of)?\s*(\d+(?:\.\d+)?)\s*(?:years?|yrs?)"
         ]
 
         for pattern in patterns:
-            match = re.search(pattern, text.lower())
+            match = re.search(pattern, text_lower)
+            if match:
+                return f"{match.group(1)} years"
 
+        # Hindi - Romanized
+        hindi_patterns = [
+            r"(\d+(?:\.\d+)?)\s*(?:saal|sal)\s*(?:ka|ke|ki)?\s*(?:anubhav|experience)",
+            r"(?:anubhav|experience)\s*(?:hai|h)\s*(?:of)?\s*(\d+(?:\.\d+)?)\s*(?:saal|sal)"
+        ]
+
+        for pattern in hindi_patterns:
+            match = re.search(pattern, text_lower)
+            if match:
+                return f"{match.group(1)} years"
+
+        # Kannada - Romanized
+        kannada_patterns = [
+            r"(\d+(?:\.\d+)?)\s*varshada\s*(?:anubhava)",
+            r"(\d+(?:\.\d+)?)\s*varsha\s*(?:anubhava)"
+        ]
+
+        for pattern in kannada_patterns:
+            match = re.search(pattern, text_lower)
             if match:
                 return f"{match.group(1)} years"
 
@@ -40,6 +64,7 @@ class EntityExtractor:
         return detected
 
     def extract_location(self, text):
+        # English
         location_patterns = [
             r"\bjobs?\s+in\s+([A-Z][a-zA-Z]+)",
             r"\bwork\s+in\s+([A-Z][a-zA-Z]+)",
@@ -53,6 +78,34 @@ class EntityExtractor:
 
             if match:
                 return match.group(1)
+
+        text_lower = text.lower()
+
+        # Hindi - Romanized
+        hindi_location_patterns = [
+            r"\b([A-Za-z]+)\s+(?:mein|me)\s+(?:rehta|rehti|rahta|rahti)\s+hoon\b",
+            r"\b([A-Za-z]+)\s+(?:mein|me)\s+(?:rehta|rehti|rahta|rahti)\b",
+            r"\b(?:mein|me)\s+([A-Za-z]+)\b",
+            r"\b(?:se)\s+([A-Za-z]+)\b"
+        ]
+        for pattern in hindi_location_patterns:
+            match = re.search(pattern, text_lower)
+
+            if match and match.group(1):
+                return match.group(1).capitalize()
+
+        # Kannada - Romanized
+        kannada_location_patterns = [
+            r"([A-Za-z]+)\s+alli\s+vasisuttene",
+            r"([A-Za-z]+)\s+alli\s+vasisutteeni",
+            r"([A-Za-z]+)\s+alli\s+iruttini"
+        ]
+
+        for pattern in kannada_location_patterns:
+            match = re.search(pattern, text_lower)
+
+            if match:
+                return match.group(1).capitalize()
 
         return None
 

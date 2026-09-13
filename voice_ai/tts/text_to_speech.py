@@ -1,33 +1,27 @@
+import asyncio
+import os
+import tempfile
+
+import edge_tts
 import pyttsx3
+from playsound3 import playsound
 
 
 class TextToSpeech:
 
-    LANGUAGE_VOICES = {
-        "en": "en-US",
-        "en-US": "en-US",
-        "en-GB": "en-GB"
+    VOICES = {
+        "en": "en-IN-NeerjaNeural",
+        "hi": "hi-IN-SwaraNeural",
+        "kn": "kn-IN-SapnaNeural"
     }
 
     def __init__(self):
+        # Keep pyttsx3 for offline English fallback
         self.engine = pyttsx3.init()
-        self.voices = self.engine.getProperty("voices")
 
-    def find_voice(self, language_code):
-
-        target_language = self.LANGUAGE_VOICES.get(
-            language_code,
-            language_code
-        )
-
-        for voice in self.voices:
-
-            for language in voice.languages:
-
-                if target_language.lower() in str(language).lower():
-                    return voice
-
-        return None
+    async def _generate_audio(self, text, voice, output_file):
+        communicate = edge_tts.Communicate(text, voice)
+        await communicate.save(output_file)
 
     def speak(self, text, language_code="en"):
 
@@ -38,47 +32,81 @@ class TextToSpeech:
                 "message": "No text provided"
             }
 
-        voice = self.find_voice(language_code)
+        # Use English as fallback for unsupported languages
+        voice = self.VOICES.get(language_code)
 
         if voice is None:
-
-            voice = self.find_voice("en")
-
-            if voice is None:
-                return {
-                    "success": False,
-                    "language": language_code,
-                    "message": "No suitable TTS voice available"
-                }
-
+            voice = self.VOICES["en"]
             used_language = "en"
             fallback = True
-
         else:
-
             used_language = language_code
             fallback = False
 
-        self.engine.setProperty("voice", voice.id)
+        try:
+            # Temporary MP3 file
+            temp_file = tempfile.NamedTemporaryFile(
+                suffix=".mp3",
+                delete=False
+            )
+            temp_file.close()
 
-        self.engine.say(text)
-        self.engine.runAndWait()
+            output_file = temp_file.name
 
-        return {
-            "success": True,
-            "requested_language": language_code,
-            "used_language": used_language,
-            "fallback": fallback
-        }
+            # Generate speech
+            asyncio.run(
+                self._generate_audio(
+                    text,
+                    voice,
+                    output_file
+                )
+            )
+
+            # Play speech
+            playsound(output_file)
+
+            # Remove temporary file
+            if os.path.exists(output_file):
+                os.remove(output_file)
+
+            return {
+                "success": True,
+                "requested_language": language_code,
+                "used_language": used_language,
+                "voice": voice,
+                "fallback": fallback
+            }
+
+        except Exception as e:
+
+            return {
+                "success": False,
+                "requested_language": language_code,
+                "used_language": used_language,
+                "voice": voice,
+                "fallback": fallback,
+                "message": str(e)
+            }
 
 
 if __name__ == "__main__":
 
     tts = TextToSpeech()
 
-    result = tts.speak(
-        "What is your highest level of education?",
+    print("\n--- English TTS ---")
+    print(tts.speak(
+        "May I know your name?",
         "en"
-    )
+    ))
 
-    print(result)
+    print("\n--- Hindi TTS ---")
+    print(tts.speak(
+        "आपका नाम क्या है?",
+        "hi"
+    ))
+
+    print("\n--- Kannada TTS ---")
+    print(tts.speak(
+        "ನಿಮ್ಮ ಹೆಸರು ಏನು?",
+        "kn"
+    ))

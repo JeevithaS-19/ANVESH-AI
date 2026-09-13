@@ -42,7 +42,7 @@ class VoicePipeline:
         self.conversation.update_profile(extracted_data)
 
         profile_complete = self.conversation.is_profile_complete()
-        next_question = self.conversation.get_next_question()
+        next_question = self.conversation.get_next_question(language_result["language_code"])
         if next_question:
             self.tts.speak(next_question, language_result["language_code"])
 
