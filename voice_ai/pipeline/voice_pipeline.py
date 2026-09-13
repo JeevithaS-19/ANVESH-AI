@@ -5,6 +5,7 @@ from voice_ai.entity_extraction.entity_extractor import EntityExtractor
 from voice_ai.conversation.conversation_manager import ConversationManager
 from voice_ai.tts.text_to_speech import TextToSpeech
 
+
 class VoicePipeline:
 
     def __init__(self):
@@ -15,17 +16,25 @@ class VoicePipeline:
         self.conversation = ConversationManager()
         self.tts = TextToSpeech()
 
-    def process_text(self, text, language_code="en", language_confidence=1.0):
-
+    def process_text(
+        self,
+        text,
+        language_code="en",
+        language_confidence=1.0
+    ):
+        # 1. Detect language
         language_result = self.language_detector.detect(
             language_code,
             language_confidence
         )
 
+        # 2. Process NLP
         nlp_result = self.nlp.process(text)
 
+        # 3. Extract entities
         entity_result = self.entity_extractor.process(text)
 
+        # 4. Combine extracted information
         extracted_data = {
             "name": entity_result["name"],
             "education": entity_result["education"],
@@ -39,13 +48,31 @@ class VoicePipeline:
             "language": language_result["language_code"]
         }
 
+        # 5. Update beneficiary profile
         self.conversation.update_profile(extracted_data)
 
+        # 6. Check profile completion
         profile_complete = self.conversation.is_profile_complete()
-        next_question = self.conversation.get_next_question(language_result["language_code"])
-        if next_question:
-            self.tts.speak(next_question, language_result["language_code"])
 
+        # 7. Generate next question
+        next_question = self.conversation.get_next_question(
+            language_result["language_code"]
+        )
+
+        # 8. Generate TTS audio for next question
+        tts_result = None
+
+        if next_question:
+            tts_result = self.tts.generate_audio(
+                next_question,
+                language_result["language_code"]
+            )
+            if tts_result["success"]:
+                self.tts.play_audio(
+                tts_result["audio_file"]
+            )
+
+        # 9. Return complete pipeline result
         return {
             "transcription": text,
             "language": language_result,
@@ -53,17 +80,19 @@ class VoicePipeline:
             "entities": entity_result,
             "profile": self.conversation.get_profile(),
             "profile_complete": profile_complete,
-            "next_question": next_question
+            "next_question": next_question,
+            "tts": tts_result
         }
 
     def process_audio(self, audio_file):
-
+        # 1. Convert audio to text using Faster-Whisper
         stt_result = self.stt.transcribe(audio_file)
 
+        # 2. Continue through the complete voice pipeline
         return self.process_text(
-            stt_result["text"],
-            stt_result["language"],
-            stt_result["language_probability"]
+            text=stt_result["text"],
+            language_code=stt_result["language"],
+            language_confidence=stt_result["language_probability"]
         )
 
 
@@ -72,8 +101,6 @@ if __name__ == "__main__":
     pipeline = VoicePipeline()
 
     result = pipeline.process_audio("sample.m4a")
-
-    print("\n--- ANVESH AI VOICE PIPELINE ---")
 
     print("\nTranscription:")
     print(result["transcription"])
@@ -95,3 +122,6 @@ if __name__ == "__main__":
 
     print("\nNext Question:")
     print(result["next_question"])
+
+    print("\nTTS:")
+    print(result["tts"])
