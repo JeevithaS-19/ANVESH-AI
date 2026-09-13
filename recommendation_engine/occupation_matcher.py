@@ -1,10 +1,44 @@
 from recommendation_engine.skill_gap import calculate_skill_gap
 from recommendation_engine.compatibility_score import calculate_compatibility_score
 
-def match_occupation(user_skills, occupation, required_skills,
-                     education_match, experience_match, interest_match):
 
-    skill_gap = calculate_skill_gap(user_skills, required_skills)
+def calculate_text_match(user_text, required_values):
+    user_text = user_text.lower()
+
+    for value in required_values:
+        if value.lower() in user_text:
+            return 100
+
+    return 0
+
+
+def calculate_interest_match(user_interests, required_interests):
+    user_interests = {interest.lower() for interest in user_interests}
+    required_interests = {interest.lower() for interest in required_interests}
+
+    if not required_interests:
+        return 0
+
+    matched = user_interests & required_interests
+
+    return round(
+        (len(matched) / len(required_interests)) * 100,
+        2
+    )
+
+
+def match_occupation(
+    user_skills,
+    occupation,
+    required_skills,
+    education_match,
+    experience_match,
+    interest_match
+):
+    skill_gap = calculate_skill_gap(
+        user_skills,
+        required_skills
+    )
 
     compatibility = calculate_compatibility_score(
         skill_gap["match_percentage"],
@@ -22,23 +56,46 @@ def match_occupation(user_skills, occupation, required_skills,
     }
 
 
-def rank_occupations(user_skills, occupations):
+def rank_occupations(
+    user_skills,
+    occupations,
+    education="",
+    experience="",
+    interests=None
+):
+    if interests is None:
+        interests = []
+
     results = []
 
     for occupation in occupations:
+
+        education_match = calculate_text_match(
+            education,
+            occupation.get("education_requirements", [])
+        )
+
+        experience_match = 100 if experience else 0
+
+        interest_match = calculate_interest_match(
+            interests,
+            occupation.get("interests", [])
+        )
+
         result = match_occupation(
-    user_skills,
-    occupation["name"],
-    occupation["required_skills"],
-    occupation["education_match"],
-    occupation["experience_match"],
-    occupation["interest_match"]
-)
+            user_skills,
+            occupation["name"],
+            occupation["required_skills"],
+            education_match,
+            experience_match,
+            interest_match
+        )
+
         results.append(result)
 
     results.sort(
-    key=lambda x: x["compatibility_score"],
-    reverse=True
-)
+        key=lambda x: x["compatibility_score"],
+        reverse=True
+    )
 
     return results

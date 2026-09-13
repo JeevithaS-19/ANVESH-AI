@@ -4,10 +4,21 @@ from recommendation_engine.explanation import generate_explanation
 from recommendation_engine.data.occupations import OCCUPATIONS
 
 
-def generate_recommendations(user_skills):
+def generate_recommendations(
+    user_skills,
+    education="",
+    experience="",
+    interests=None
+):
+    if interests is None:
+        interests = []
+
     occupation_results = rank_occupations(
         user_skills,
-        OCCUPATIONS
+        OCCUPATIONS,
+        education,
+        experience,
+        interests
     )
 
     final_results = []
