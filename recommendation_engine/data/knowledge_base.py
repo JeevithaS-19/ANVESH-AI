@@ -77,7 +77,8 @@ def load_knowledge_base():
                 else []
             ),
             "experience_level": row["experience_level"],
-            "training": []
+            "training": [],
+            "opportunities": []
         })
 
     # -------------------------
@@ -127,9 +128,42 @@ def load_knowledge_base():
 
             if occupation_id in occupation_map:
 
-                occupation_map[occupation_id]["training"].append(
-                    training
-                )
+                occupation_map[
+                    occupation_id
+                ]["training"].append(training)
+
+    # -------------------------
+    # Load opportunities
+    # -------------------------
+
+    opportunity_rows = conn.execute(
+        """
+        SELECT
+            opportunity_id,
+            type,
+            title,
+            location,
+            linked_occupation
+        FROM opportunities
+        """
+    ).fetchall()
+
+    for row in opportunity_rows:
+
+        linked_occupation = row["linked_occupation"]
+
+        opportunity = {
+            "opportunity_id": row["opportunity_id"],
+            "type": row["type"],
+            "title": row["title"],
+            "location": row["location"]
+        }
+
+        if linked_occupation in occupation_map:
+
+            occupation_map[
+                linked_occupation
+            ]["opportunities"].append(opportunity)
 
     conn.close()
 

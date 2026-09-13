@@ -23,12 +23,13 @@ class BeneficiaryProfile(BaseModel):
 def get_recommendations(profile: BeneficiaryProfile):
 
     recommendations = generate_recommendations(
-    profile.skills,
-    profile.education,
-    profile.experience,
-    profile.interests,
-    profile.career_goal
-)
+        profile.skills,
+        profile.education,
+        profile.experience,
+        profile.interests,
+        profile.career_goal,
+        profile.location
+    )
 
     return {
         "success": True,
