@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ANVESH AI — Skill &amp; Livelihood Pathfinder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Lexend:wght@400;500;600;700&family=Noto+Sans+Devanagari:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div id="app">
+  <div class="topbar">
+    <div class="brand">
+      <div class="brand-mark" onclick="goTo('landing')" style="cursor:pointer">AI</div>
+      <div>
+        <div class="brand-name">ANVESH AI</div>
+        <div class="brand-sub">Skill &amp; Livelihood Pathfinder</div>
+      </div>
+    </div>
+    <div class="top-actions">
+      <button class="pill-btn" id="statusPill" title="Backend connection status">
+        <span class="status-dot checking" id="statusDot"></span>
+        <span id="statusLabel">Checking backend…</span>
+      </button>
+      <button class="pill-btn" id="soundToggle" onclick="toggleSound()" title="Toggle sound">🔊</button>
+      <button class="pill-btn" id="topLangPill" onclick="goTo('language')">🌐 <span id="topLangLabel">English</span></button>
+    </div>
+  </div>
+
+  <nav class="journey" id="journeyTracker"></nav>
+
+  <main id="mainScreen"></main>
+
+  <footer>ANVESH AI prototype &middot; Frontend module (Member 1) &middot; live-wired to the member2-backend FastAPI service</footer>
+</div>
+
+<script src="api.js"></script>
+<script src="effects.js"></script>
+<script src="mascot.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
