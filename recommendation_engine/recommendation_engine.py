@@ -8,7 +8,8 @@ def generate_recommendations(
     user_skills,
     education="",
     experience="",
-    interests=None
+    interests=None,
+    career_goal=""
 ):
     if interests is None:
         interests = []
@@ -18,9 +19,9 @@ def generate_recommendations(
         OCCUPATIONS,
         education,
         experience,
-        interests
+        interests,
+        career_goal
     )
-
     final_results = []
 
     for result in occupation_results:
