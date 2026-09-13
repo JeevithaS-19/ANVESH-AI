@@ -61,8 +61,17 @@ class TextToSpeech:
 
         self.engine.setProperty("voice", voice.id)
 
-        self.engine.say(text)
-        self.engine.runAndWait()
+        try:
+            self.engine.stop()
+            self.engine.say(text)
+            self.engine.runAndWait()
+
+        except RuntimeError as e:
+            return {
+                "success": False,
+                "language": language_code,
+                "message": str(e)
+            }
 
         return {
             "success": True,
