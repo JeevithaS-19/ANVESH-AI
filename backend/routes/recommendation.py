@@ -63,12 +63,13 @@ def get_recommendations(request: RecommendationRequest):
     # ------------------------------------------------
 
     results = generate_recommendations(
-        skills,
-        education,
-        experience,
-        interests,
-        career_goal
-    )
+    skills,
+    education,
+    experience,
+    interests,
+    career_goal,
+    location
+)
 
     # ------------------------------------------------
     # If recommendation engine returns nothing
