@@ -46,3 +46,28 @@ def get_opportunities_for_occupation(occupation_name):
             matched_opportunities.append(opportunity)
 
     return matched_opportunities
+
+
+
+def load_nsqf_training():
+    file_path = BASE_DIR / "nsqf_training.json"
+
+    with open(file_path, "r", encoding="utf-8-sig") as file:
+        return json.load(file)
+
+
+def get_nsqf_training_for_occupation(occupation_name):
+    occupation_id = get_occupation_id(occupation_name)
+
+    if occupation_id is None:
+        return []
+
+    training_records = load_nsqf_training()
+
+    matched_training = []
+
+    for training in training_records:
+        if occupation_id in training.get("linked_occupations", []):
+            matched_training.append(training)
+
+    return matched_training

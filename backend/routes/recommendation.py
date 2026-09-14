@@ -1,3 +1,4 @@
+
 from fastapi import APIRouter
 
 from backend.schemas.recommendation import (
@@ -6,7 +7,11 @@ from backend.schemas.recommendation import (
 )
 
 from recommendation_engine.recommendation_engine import generate_recommendations
-from backend.knowledge_base.adapter import get_opportunities_for_occupation
+
+from backend.knowledge_base.adapter import (
+    get_opportunities_for_occupation,
+    get_nsqf_training_for_occupation
+)
 
 
 router = APIRouter(
@@ -120,51 +125,31 @@ def get_recommendations(request: RecommendationRequest):
     }
 
     # ------------------------------------------------
-    # Training / NSQF pathway
-    # ------------------------------------------------
-
-    nsqf_pathway = []
-
-    training = best.get("training", [])
-
-    if isinstance(training, list):
-
-        for item in training:
-
-            if isinstance(item, dict):
-
-                nsqf_pathway.append({
-                    "level": item.get(
-                        "nsqf_level",
-                        item.get("level", "")
-                    ),
-                    "title": item.get(
-                        "training",
-                        item.get(
-                            "title",
-                            item.get("name", "")
-                        )
-                    ),
-                    "meta": item.get(
-                        "meta",
-                        item.get("description", "")
-                    )
-                })
-
-            else:
-
-                nsqf_pathway.append({
-                    "level": "",
-                    "title": str(item),
-                    "meta": ""
-                })
-
-    # ------------------------------------------------
-    # Opportunities will be connected with
-    # Member 5's knowledge base later
+    # NSQF pathway from Member 5 knowledge base
     # ------------------------------------------------
 
     occupation_name = best.get("occupation", "")
+
+    knowledge_base_training = get_nsqf_training_for_occupation(
+        occupation_name
+    )
+
+    nsqf_pathway = []
+
+    for item in knowledge_base_training:
+        nsqf_pathway.append({
+            "level": item.get("level", ""),
+            "title": item.get("title", ""),
+            "meta": (
+                f"Provider: {item.get('provider', '')}; "
+                f"Mode: {item.get('mode', '')}; "
+                f"Duration: {item.get('duration_weeks', '')} weeks"
+            )
+        })
+
+    # ------------------------------------------------
+    # Opportunities from Member 5 knowledge base
+    # ------------------------------------------------
 
     knowledge_base_opportunities = get_opportunities_for_occupation(
         occupation_name
@@ -190,7 +175,4 @@ def get_recommendations(request: RecommendationRequest):
         recommendation=recommendation,
         opportunities=opportunities
     )
-
-
-
 
