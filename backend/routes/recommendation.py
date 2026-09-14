@@ -17,15 +17,54 @@ router = APIRouter(
 @router.post("/", response_model=RecommendationResponse)
 def get_recommendations(request: RecommendationRequest):
 
-    results = generate_recommendations(
-        request.skills,
-        request.education or "",
-        request.experience or "",
-        request.interests,
-        request.career_goal or ""
+    # ------------------------------------------------
+    # Get profile data from Member 1 frontend
+    # ------------------------------------------------
+
+    profile = request.profile or {}
+
+    # Support both:
+    # 1. Member 1 format: data inside "profile"
+    # 2. Direct backend format: skills, education, etc.
+    skills = request.skills or profile.get("skills", [])
+
+    education = request.education or profile.get("education", "")
+
+    # Member 1 sends education as a list
+    if isinstance(education, list):
+        education = ", ".join(str(item) for item in education)
+
+    experience = request.experience or profile.get("experience", "")
+
+    interests = request.interests or profile.get("interests", [])
+
+    location = request.location or profile.get("location", "")
+
+    # Member 1 uses job_domain instead of career_goal
+    career_goal = (
+        request.career_goal
+        or profile.get("career_goal")
+        or profile.get("job_domain")
+        or profile.get("intent")
+        or ""
     )
 
+    # ------------------------------------------------
+    # Generate recommendations
+    # ------------------------------------------------
+
+    results = generate_recommendations(
+        skills,
+        education,
+        experience,
+        interests,
+        career_goal
+    )
+
+    # ------------------------------------------------
     # If recommendation engine returns nothing
+    # ------------------------------------------------
+
     if not results:
         return RecommendationResponse(
             session_id=request.session_id,
@@ -94,10 +133,16 @@ def get_recommendations(request: RecommendationRequest):
             if isinstance(item, dict):
 
                 nsqf_pathway.append({
-                    "level": item.get("level", ""),
+                    "level": item.get(
+                        "nsqf_level",
+                        item.get("level", "")
+                    ),
                     "title": item.get(
-                        "title",
-                        item.get("name", "")
+                        "training",
+                        item.get(
+                            "title",
+                            item.get("name", "")
+                        )
                     ),
                     "meta": item.get(
                         "meta",
@@ -114,8 +159,8 @@ def get_recommendations(request: RecommendationRequest):
                 })
 
     # ------------------------------------------------
-    # Opportunities will be connected separately
-    # with Member 5's knowledge base.
+    # Opportunities will be connected with
+    # Member 5's knowledge base later
     # ------------------------------------------------
 
     opportunities = []

@@ -5,7 +5,10 @@ from typing import Optional
 class RecommendationRequest(BaseModel):
     session_id: str
 
-    # Profile data coming from Member 1 frontend
+    # Member 1 frontend sends the complete profile
+    profile: Optional[dict] = None
+
+    # These fields allow direct backend requests too
     skills: list[str] = []
     interests: list[str] = []
 

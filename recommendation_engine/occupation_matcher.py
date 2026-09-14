@@ -31,10 +31,27 @@ def calculate_career_goal_match(career_goal, occupation):
     if not career_goal:
         return 0
 
-    career_goal = career_goal.lower()
-    occupation = occupation.lower()
+    career_goal = career_goal.lower().strip()
+    occupation = occupation.lower().strip()
 
-    if occupation in career_goal:
+    # Direct match
+    if occupation in career_goal or career_goal in occupation:
+        return 100
+
+    # Related career goals and occupations
+    career_goal_keywords = {
+        "software development": ["software developer"],
+        "software developer": ["software development"],
+        "data analytics": ["data analyst"],
+        "data analysis": ["data analyst"],
+        "machine learning": ["machine learning engineer"],
+        "artificial intelligence": ["machine learning engineer"],
+        "ai": ["machine learning engineer"]
+    }
+
+    related_occupations = career_goal_keywords.get(career_goal, [])
+
+    if occupation in related_occupations:
         return 100
 
     return 0
