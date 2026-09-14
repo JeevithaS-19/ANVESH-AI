@@ -1,28 +1,27 @@
 from fastapi import FastAPI, Form
 from fastapi.responses import Response
-from twilio.twiml.messaging_response import MessagingResponse
+from twilio.twiml.voice_response import VoiceResponse, Gather
 
-app = FastAPI()
+from integrations.whatsapp.whatsapp_webhook import router as whatsapp_router
+
+
+app = FastAPI(
+    title="ANVESH AI",
+    version="1.0.0"
+)
+
+# WhatsApp integration
+app.include_router(whatsapp_router)
 
 
 @app.get("/")
 def home():
-    return {"message": "ANVESH AI WhatsApp server is running"}
+    return {
+        "message": "ANVESH AI integration server is running"
+    }
 
 
-@app.post("/whatsapp")
-def whatsapp(Body: str = Form(...)):
-    response = MessagingResponse()
-    response.message(f"ANVESH AI received: {Body}")
-
-    return Response(
-        content=str(response),
-        media_type="application/xml"
-    )
-from fastapi.responses import Response
-from twilio.twiml.voice_response import VoiceResponse, Gather
-
-
+# Voice integration
 @app.post("/voice")
 def voice():
     response = VoiceResponse()
