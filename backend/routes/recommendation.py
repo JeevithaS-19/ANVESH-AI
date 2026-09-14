@@ -6,6 +6,7 @@ from backend.schemas.recommendation import (
 )
 
 from recommendation_engine.recommendation_engine import generate_recommendations
+from backend.knowledge_base.adapter import get_opportunities_for_occupation
 
 
 router = APIRouter(
@@ -163,7 +164,24 @@ def get_recommendations(request: RecommendationRequest):
     # Member 5's knowledge base later
     # ------------------------------------------------
 
+    occupation_name = best.get("occupation", "")
+
+    knowledge_base_opportunities = get_opportunities_for_occupation(
+        occupation_name
+    )
+
     opportunities = []
+
+    for item in knowledge_base_opportunities:
+        opportunities.append({
+            "id": item.get("opportunity_id", ""),
+            "title": item.get("title", ""),
+            "organization": "",
+            "type": item.get("type", ""),
+            "description": f"Location: {item.get('location', '')}",
+            "skills": matched_skills,
+            "link": ""
+        })
 
     return RecommendationResponse(
         session_id=request.session_id,
@@ -172,3 +190,7 @@ def get_recommendations(request: RecommendationRequest):
         recommendation=recommendation,
         opportunities=opportunities
     )
+
+
+
+

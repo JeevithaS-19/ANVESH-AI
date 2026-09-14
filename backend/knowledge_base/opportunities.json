@@ -1,0 +1,121 @@
+﻿[
+  {
+    "opportunity_id": "OP001",
+    "type": "Training",
+    "title": "NSQF Software Developer Bootcamp - Bangalore Skill Center",
+    "location": "Bangalore",
+    "linked_occupation": "OC001"
+  },
+  {
+    "opportunity_id": "OP002",
+    "type": "Employment",
+    "title": "Junior Software Developer - Local IT Services Firm",
+    "location": "Bangalore",
+    "linked_occupation": "OC001"
+  },
+  {
+    "opportunity_id": "OP003",
+    "type": "Livelihood",
+    "title": "Freelance Web/App Development Gigs - Remote",
+    "location": "Remote",
+    "linked_occupation": "OC001"
+  },
+  {
+    "opportunity_id": "OP004",
+    "type": "Training",
+    "title": "Data Analytics Certification Program - Kochi Skill Center",
+    "location": "Kochi",
+    "linked_occupation": "OC002"
+  },
+  {
+    "opportunity_id": "OP005",
+    "type": "Employment",
+    "title": "Data Analyst Trainee - Regional Analytics Firm",
+    "location": "Kochi",
+    "linked_occupation": "OC002"
+  },
+  {
+    "opportunity_id": "OP006",
+    "type": "Training",
+    "title": "Digital Marketing Skill Certification - Hyderabad Center",
+    "location": "Hyderabad",
+    "linked_occupation": "OC003"
+  },
+  {
+    "opportunity_id": "OP007",
+    "type": "Livelihood",
+    "title": "Freelance Social Media Management - Remote",
+    "location": "Remote",
+    "linked_occupation": "OC003"
+  },
+  {
+    "opportunity_id": "OP008",
+    "type": "Training",
+    "title": "Web Designer NSQF Program - Ernakulam Skill Center",
+    "location": "Ernakulam",
+    "linked_occupation": "OC004"
+  },
+  {
+    "opportunity_id": "OP009",
+    "type": "Employment",
+    "title": "Junior Web Designer - Local Design Studio",
+    "location": "Ernakulam",
+    "linked_occupation": "OC004"
+  },
+  {
+    "opportunity_id": "OP010",
+    "type": "Employment",
+    "title": "IT Helpdesk Technician - Regional Service Provider",
+    "location": "Bangalore",
+    "linked_occupation": "OC005"
+  },
+  {
+    "opportunity_id": "OP011",
+    "type": "Training",
+    "title": "IT Helpdesk NSQF Certification - Community Skill Center",
+    "location": "Kochi",
+    "linked_occupation": "OC005"
+  },
+  {
+    "opportunity_id": "OP012",
+    "type": "Training",
+    "title": "Retail Sales Associate NSQF Program - Chennai Skill Center",
+    "location": "Chennai",
+    "linked_occupation": "OC006"
+  },
+  {
+    "opportunity_id": "OP013",
+    "type": "Employment",
+    "title": "Sales Associate - Regional Retail Chain",
+    "location": "Chennai",
+    "linked_occupation": "OC006"
+  },
+  {
+    "opportunity_id": "OP014",
+    "type": "Training",
+    "title": "Domestic Electrician NSQF Program - Coimbatore ITI",
+    "location": "Coimbatore",
+    "linked_occupation": "OC007"
+  },
+  {
+    "opportunity_id": "OP015",
+    "type": "Livelihood",
+    "title": "Self-Employed Electrician Registration - District Skill Mission",
+    "location": "Coimbatore",
+    "linked_occupation": "OC007"
+  },
+  {
+    "opportunity_id": "OP016",
+    "type": "Training",
+    "title": "General Duty Assistant NSQF Program - Mysuru Health Skill Center",
+    "location": "Mysuru",
+    "linked_occupation": "OC008"
+  },
+  {
+    "opportunity_id": "OP017",
+    "type": "Employment",
+    "title": "General Duty Assistant - District Hospital",
+    "location": "Mysuru",
+    "linked_occupation": "OC008"
+  }
+]
