@@ -1,210 +1,249 @@
 import asyncio
 import os
+import threading
 import uuid
 
 import edge_tts
-import pyttsx3
-from playsound3 import playsound
 
+
+# ============================================================
+# VOICES
+# ============================================================
+
+VOICES = {
+
+    "en": "en-IN-NeerjaNeural",
+
+    "hi": "hi-IN-SwaraNeural",
+
+    "kn": "kn-IN-SapnaNeural",
+}
+
+
+# ============================================================
+# TEXT TO SPEECH
+# ============================================================
 
 class TextToSpeech:
 
-    VOICES = {
-        "en": "en-IN-NeerjaNeural",
-        "hi": "hi-IN-SwaraNeural",
-        "kn": "kn-IN-SapnaNeural"
-    }
-
     def __init__(self):
-        # Keep pyttsx3 available for future offline fallback
-        self.engine = pyttsx3.init()
 
-    async def _generate_audio(self, text, voice, output_file):
-        communicate = edge_tts.Communicate(text, voice)
-        await communicate.save(output_file)
+        self.output_dir = os.path.join(
+            os.path.dirname(
+                os.path.abspath(__file__)
+            ),
+            "..",
+            "generated_audio"
+        )
 
-    def generate_audio(self, text, language_code="en"):
-        """
-        Generate an MP3 file without playing it.
+        self.output_dir = os.path.abspath(
+            self.output_dir
+        )
 
-        Each audio file gets a unique filename.
-        """
+        os.makedirs(
+            self.output_dir,
+            exist_ok=True
+        )
+
+    # ========================================================
+    # ASYNC GENERATION
+    # ========================================================
+
+    async def _generate_audio(
+        self,
+        text,
+        language
+    ):
+
+        if language not in VOICES:
+
+            language = "en"
+
+        voice = VOICES[
+            language
+        ]
+
+        filename = (
+            f"tts_{language}_"
+            f"{uuid.uuid4().hex[:8]}"
+            ".mp3"
+        )
+
+        output_file = os.path.join(
+            self.output_dir,
+            filename
+        )
+
+        communicate = edge_tts.Communicate(
+            text,
+            voice
+        )
+
+        await communicate.save(
+            output_file
+        )
+
+        return {
+            "success": True,
+
+            "requested_language":
+                language,
+
+            "used_language":
+                language,
+
+            "voice":
+                voice,
+
+            "fallback":
+                False,
+
+            "audio_file":
+                output_file,
+        }
+
+    # ========================================================
+    # RUN COROUTINE SAFELY
+    # ========================================================
+
+    def _run_async_safely(
+        self,
+        coroutine
+    ):
+
+        result = {
+            "value": None,
+            "error": None,
+        }
+
+        def runner():
+
+            try:
+
+                result["value"] = (
+                    asyncio.run(
+                        coroutine
+                    )
+                )
+
+            except Exception as error:
+
+                result["error"] = error
+
+        thread = threading.Thread(
+            target=runner
+        )
+
+        thread.start()
+
+        thread.join()
+
+        if result["error"]:
+
+            raise result["error"]
+
+        return result["value"]
+
+    # ========================================================
+    # GENERATE AUDIO
+    # ========================================================
+
+    def generate_audio(
+        self,
+        text,
+        language="en"
+    ):
 
         if not text:
             return {
                 "success": False,
-                "requested_language": language_code,
-                "message": "No text provided"
+                "error": "Empty text"
             }
 
-        # Select voice
-        voice = self.VOICES.get(language_code)
-
-        # Fallback to English for unsupported languages
-        if voice is None:
-            voice = self.VOICES["en"]
-            used_language = "en"
-            fallback = True
-        else:
-            used_language = language_code
-            fallback = False
-
         try:
-            # Create generated audio directory
-            audio_dir = os.path.join(
-                os.path.dirname(os.path.dirname(__file__)),
-                "generated_audio"
-            )
 
-            os.makedirs(audio_dir, exist_ok=True)
-
-            # Unique filename
-            unique_id = uuid.uuid4().hex[:8]
-
-            output_file = os.path.join(
-                audio_dir,
-                f"tts_{language_code}_{unique_id}.mp3"
-            )
-
-            # Generate audio
-            asyncio.run(
+            return self._run_async_safely(
                 self._generate_audio(
                     text,
-                    voice,
-                    output_file
+                    language
                 )
             )
 
-            return {
-                "success": True,
-                "requested_language": language_code,
-                "used_language": used_language,
-                "voice": voice,
-                "fallback": fallback,
-                "audio_file": output_file
-            }
-
-        except Exception as e:
+        except Exception as error:
 
             return {
                 "success": False,
-                "requested_language": language_code,
-                "used_language": used_language,
-                "voice": voice,
-                "fallback": fallback,
-                "message": str(e)
+                "error": str(error),
             }
 
-    def play_audio(self, audio_file):
-        """
-        Play an already generated audio file.
+    # ========================================================
+    # PLAY AUDIO
+    # ========================================================
 
-        The same MP3 generated by generate_audio()
-        is played without generating it again.
-        """
-
-        if not audio_file:
-            return {
-                "success": False,
-                "message": "No audio file provided"
-            }
-
-        if not os.path.exists(audio_file):
-            return {
-                "success": False,
-                "audio_file": audio_file,
-                "message": "Audio file not found"
-            }
+    def play_audio(
+        self,
+        audio_file
+    ):
 
         try:
-            playsound(audio_file)
 
-            return {
-                "success": True,
-                "audio_file": audio_file
-            }
+            from playsound import playsound
 
-        except Exception as e:
+            playsound(
+                audio_file
+            )
 
-            return {
-                "success": False,
-                "audio_file": audio_file,
-                "message": str(e)
-            }
+            return True
 
-    def speak(self, text, language_code="en"):
-        """
-        Generate and play speech locally.
+        except Exception as error:
 
-        This method generates the audio once,
-        plays the same generated file,
-        and then removes it.
-        """
+            print(
+                "[TTS] Playback error:",
+                error
+            )
 
-        result = self.generate_audio(
-            text,
-            language_code
+            return False
+
+    # ========================================================
+    # SPEAK
+    # ========================================================
+
+    def speak(
+        self,
+        text,
+        language="en"
+    ):
+
+        result = (
+            self.generate_audio(
+                text,
+                language
+            )
         )
 
-        if not result["success"]:
+        if not result.get(
+            "success"
+        ):
+
             return result
 
-        output_file = result["audio_file"]
+        audio_file = result.get(
+            "audio_file"
+        )
 
-        playback_result = self.play_audio(output_file)
+        if audio_file:
 
-        # Delete temporary file after playback
-        if os.path.exists(output_file):
-            os.remove(output_file)
+            self.play_audio(
+                audio_file
+            )
 
-        if not playback_result["success"]:
-            return {
-                "success": False,
-                "requested_language": result["requested_language"],
-                "used_language": result["used_language"],
-                "voice": result["voice"],
-                "fallback": result["fallback"],
-                "message": playback_result["message"]
-            }
+            try:
 
-        result.pop("audio_file", None)
+                os.remove(
+                    audio_file
+                )
+
+            except Exception:
+                pass
 
         return result
-
-
-if __name__ == "__main__":
-
-    tts = TextToSpeech()
-
-    print("\n--- English TTS ---")
-    print(
-        tts.speak(
-            "May I know your name?",
-            "en"
-        )
-    )
-
-    print("\n--- Hindi TTS ---")
-    print(
-        tts.speak(
-            "आपका नाम क्या है?",
-            "hi"
-        )
-    )
-
-    print("\n--- Kannada TTS ---")
-    print(
-        tts.speak(
-            "ನಿಮ್ಮ ಹೆಸರು ಏನು?",
-            "kn"
-        )
-    )
-
-    print("\n--- Audio File Generation Test ---")
-
-    result = tts.generate_audio(
-        "Your profile is ready.",
-        "en"
-    )
-
-    print(result)
