@@ -1,39 +1,91 @@
 import json
-import sqlite3
-from pathlib import Path
+import os
+
+import pg8000
+from dotenv import load_dotenv
 
 
-# Database is stored at the root of the ANVESH-AI project
-DB_PATH = Path(__file__).resolve().parents[2] / "anvesh_prototype.db"
+# Load PostgreSQL configuration from .env
+load_dotenv()
+
+
+PG_CONFIG = {
+    "host": os.getenv("POSTGRES_HOST", "localhost"),
+    "port": int(os.getenv("POSTGRES_PORT", "5432")),
+    "database": os.getenv("POSTGRES_DB", "anvesh_prototype"),
+    "user": os.getenv("POSTGRES_USER", "postgres"),
+    "password": os.getenv("POSTGRES_PASSWORD"),
+}
+
+
+def _parse_json(value, default=None):
+    """
+    PostgreSQL JSON/JSONB values may be returned as strings
+    or already-decoded Python objects depending on the driver.
+    """
+    if default is None:
+        default = []
+
+    if value is None:
+        return default
+
+    if isinstance(value, (list, dict)):
+        return value
+
+    if isinstance(value, str):
+        try:
+            return json.loads(value)
+        except json.JSONDecodeError:
+            return default
+
+    return default
+
+
+def _connect():
+    """
+    Create a PostgreSQL connection using the same
+    environment variables used by Member 2.
+    """
+    if not PG_CONFIG["password"]:
+        raise RuntimeError(
+            "POSTGRES_PASSWORD is not set in the .env file."
+        )
+
+    return pg8000.connect(**PG_CONFIG)
 
 
 def load_knowledge_base():
 
-    conn = sqlite3.connect(DB_PATH)
-    conn.row_factory = sqlite3.Row
+    conn = _connect()
+    cur = conn.cursor()
 
     # -------------------------
     # Load skills
     # -------------------------
 
-    skill_rows = conn.execute(
-        "SELECT skill_id, name, synonyms FROM skills"
-    ).fetchall()
+    cur.execute(
+        """
+        SELECT skill_id, name, synonyms
+        FROM skills
+        """
+    )
+
+    skill_rows = cur.fetchall()
 
     skills = {}
 
-    for row in skill_rows:
+    for skill_id, name, synonyms in skill_rows:
 
-        skills[row["skill_id"]] = {
-            "name": row["name"],
-            "synonyms": json.loads(row["synonyms"] or "[]")
+        skills[skill_id] = {
+            "name": name,
+            "synonyms": _parse_json(synonyms, [])
         }
 
     # -------------------------
     # Load occupations
     # -------------------------
 
-    occupation_rows = conn.execute(
+    cur.execute(
         """
         SELECT
             occupation_id,
@@ -43,14 +95,23 @@ def load_knowledge_base():
             experience_level
         FROM occupations
         """
-    ).fetchall()
+    )
+
+    occupation_rows = cur.fetchall()
 
     occupations = []
 
-    for row in occupation_rows:
+    for (
+        occupation_id,
+        name,
+        required_skills_value,
+        education,
+        experience_level
+    ) in occupation_rows:
 
-        skill_ids = json.loads(
-            row["required_skills"] or "[]"
+        skill_ids = _parse_json(
+            required_skills_value,
+            []
         )
 
         required_skills = []
@@ -64,19 +125,21 @@ def load_knowledge_base():
 
                 required_skills.append(skill_name)
 
-                skill_synonyms[skill_name] = skills[skill_id]["synonyms"]
+                skill_synonyms[skill_name] = (
+                    skills[skill_id]["synonyms"]
+                )
 
         occupations.append({
-            "occupation_id": row["occupation_id"],
-            "name": row["name"],
+            "occupation_id": occupation_id,
+            "name": name,
             "required_skills": required_skills,
             "skill_synonyms": skill_synonyms,
             "education_requirements": (
-                [row["education"]]
-                if row["education"]
+                [education]
+                if education
                 else []
             ),
-            "experience_level": row["experience_level"],
+            "experience_level": experience_level,
             "training": [],
             "opportunities": []
         })
@@ -85,7 +148,7 @@ def load_knowledge_base():
     # Load NSQF training
     # -------------------------
 
-    training_rows = conn.execute(
+    cur.execute(
         """
         SELECT
             record_id,
@@ -98,29 +161,42 @@ def load_knowledge_base():
             linked_occupations
         FROM nsqf_training
         """
-    ).fetchall()
+    )
+
+    training_rows = cur.fetchall()
 
     occupation_map = {
         occupation["occupation_id"]: occupation
         for occupation in occupations
     }
 
-    for row in training_rows:
+    for (
+        record_id,
+        title,
+        level,
+        provider,
+        mode,
+        duration_weeks,
+        linked_skills_value,
+        linked_occupations_value
+    ) in training_rows:
 
-        linked_occupations = json.loads(
-            row["linked_occupations"] or "[]"
+        linked_occupations = _parse_json(
+            linked_occupations_value,
+            []
         )
 
-        linked_skills = json.loads(
-            row["linked_skills"] or "[]"
+        linked_skills = _parse_json(
+            linked_skills_value,
+            []
         )
 
         training = {
-            "training": row["title"],
-            "nsqf_level": row["level"],
-            "provider": row["provider"],
-            "mode": row["mode"],
-            "duration_weeks": row["duration_weeks"],
+            "training": title,
+            "nsqf_level": level,
+            "provider": provider,
+            "mode": mode,
+            "duration_weeks": duration_weeks,
             "linked_skills": linked_skills
         }
 
@@ -136,7 +212,7 @@ def load_knowledge_base():
     # Load opportunities
     # -------------------------
 
-    opportunity_rows = conn.execute(
+    cur.execute(
         """
         SELECT
             opportunity_id,
@@ -146,17 +222,23 @@ def load_knowledge_base():
             linked_occupation
         FROM opportunities
         """
-    ).fetchall()
+    )
 
-    for row in opportunity_rows:
+    opportunity_rows = cur.fetchall()
 
-        linked_occupation = row["linked_occupation"]
+    for (
+        opportunity_id,
+        opportunity_type,
+        title,
+        location,
+        linked_occupation
+    ) in opportunity_rows:
 
         opportunity = {
-            "opportunity_id": row["opportunity_id"],
-            "type": row["type"],
-            "title": row["title"],
-            "location": row["location"]
+            "opportunity_id": opportunity_id,
+            "type": opportunity_type,
+            "title": title,
+            "location": location
         }
 
         if linked_occupation in occupation_map:
@@ -165,6 +247,7 @@ def load_knowledge_base():
                 linked_occupation
             ]["opportunities"].append(opportunity)
 
+    cur.close()
     conn.close()
 
     return occupations
