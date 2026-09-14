@@ -10,7 +10,8 @@ from recommendation_engine.recommendation_engine import generate_recommendations
 
 from backend.knowledge_base.adapter import (
     get_opportunities_for_occupation,
-    get_nsqf_training_for_occupation
+    get_nsqf_training_for_occupation,
+    normalize_skills
 )
 
 
@@ -33,6 +34,8 @@ def get_recommendations(request: RecommendationRequest):
     # 1. Member 1 format: data inside "profile"
     # 2. Direct backend format: skills, education, etc.
     skills = request.skills or profile.get("skills", [])
+
+    skills = normalize_skills(skills)
 
     education = request.education or profile.get("education", "")
 
@@ -175,4 +178,6 @@ def get_recommendations(request: RecommendationRequest):
         recommendation=recommendation,
         opportunities=opportunities
     )
+
+
 
