@@ -4,3 +4,4 @@ pydantic
 python-dotenv
 faster-whisper
 pyttsx3
+pg8000
